@@ -27,12 +27,14 @@ async function sendFile(){
 
     // sending data chunks
     const reader = new FileReader()
-    const chunkSize = 16 * 1024;
+    const chunkSize = 64 * 1024;
     let offset = 0;
     
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         
+        await waitForBufferCheck();
+
         dataChannel.send(e.target.result);
         offset += e.target.result.byteLength;
         if (offset < file.size) {
@@ -48,4 +50,20 @@ async function sendFile(){
     const slice = file.slice(0, chunkSize)
     reader.readAsArrayBuffer(slice)
 
+}
+
+function waitForBufferCheck(){
+    return new Promise(resolve=>{
+        const bufferLimit = 1*1024*1024
+
+        function check(){
+            if(dataChannel.bufferedAmount < bufferLimit){
+                resolve()
+            }
+            else{
+                setTimeout(check,10)
+            }
+        }
+        check()
+    })
 }
