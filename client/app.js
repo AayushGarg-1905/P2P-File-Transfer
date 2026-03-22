@@ -1,6 +1,6 @@
 // -------------------- SOCKET --------------------
 
-const socket = io("http://localhost:8081");
+const socket = io();
 
 const createRoomBtn = document.getElementById("createRoom");
 const joinRoomBtn = document.getElementById("joinRoom");
