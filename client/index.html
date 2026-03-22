@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>P2P Transfer MVP</title>
+</head>
+
+<body>
+
+    <h2>P2P File Transfer MVP</h2>
+
+    <button id="createRoom">Create Room</button>
+
+    <br><br>
+
+    <input type="text" id="roomInput" placeholder="Enter Room ID">
+    <button id="joinRoom">Join Room</button>
+
+    <h3 id="roomDisplay"></h3>
+
+    <input type="file" id="fileInput" />
+    <button id="sendFileBtn">Send File</button>
+    
+    <div id="downloadArea"></div>
+
+    <script src="http://localhost:8081/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+    <script src="fileTransfer.js"></script>
+
+</body>
+
+</html>
