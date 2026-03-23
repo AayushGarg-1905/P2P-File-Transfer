@@ -6,6 +6,10 @@ const createRoomBtn = document.getElementById("createRoom");
 const joinRoomBtn = document.getElementById("joinRoom");
 const roomInput = document.getElementById("roomInput");
 const roomDisplay = document.getElementById("roomDisplay");
+const receiverProgressText = document.getElementById("receiverProgressText");
+const receiverProgressBar = document.getElementById("receiverProgressBar");
+const receiverSpeedText = document.getElementById("receiverSpeedText")
+const receiverTimeText = document.getElementById("receiverTimeText")
 
 let roomId;
 let peerConnection;
@@ -13,6 +17,8 @@ let dataChannel;
 let role;
 let receivedBuffers = [];
 let fileMetadata = null;
+let receivedSize = 0;
+let receiveStartTime = 0;
 
 const configuration = {
     iceServers: [
@@ -116,6 +122,10 @@ async function createPeerConnection() {
                 if(data.type=="metadata"){
                     fileMetadata = data
                     receivedBuffers = []
+                    receivedSize = 0;
+                    receiveStartTime = Date.now();
+                    receiverProgressBar.value = 0;
+                    receiverProgressText.innerText = "0%";
                     console.log("Metadata is received, now receving the file buffer: ",data.name)
                 }
 
@@ -132,6 +142,18 @@ async function createPeerConnection() {
             }
             else{
                 receivedBuffers.push(msg.data)
+                receivedSize += msg.data.byteLength
+
+                let percent = ((receivedSize / fileMetadata.size) * 100).toFixed(2)
+                receiverProgressBar.value = percent
+                receiverProgressText.innerText =
+                    `${percent}% (${(receivedSize / 1024 / 1024).toFixed(2)} MB / ${(fileMetadata.size / 1024 / 1024).toFixed(2)} MB)`
+
+                let elapsedTime = (Date.now() - receiveStartTime) / 1000
+                receiverTimeText.innerText = elapsedTime.toFixed(2) + " sec"
+
+                let speed = (receivedSize / 1024 / 1024) / elapsedTime
+                receiverSpeedText.innerText = speed.toFixed(2) + " MB/s"
             }
         };
     };

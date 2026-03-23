@@ -20,6 +20,19 @@
 
     <input type="file" id="fileInput" />
     <button id="sendFileBtn">Send File</button>
+
+    <h3>Sender Progress</h3>
+    <div id="senderProgressText">0%</div>
+    <progress id="senderProgressBar" value="0" max="100"></progress>
+    <div id="senderSpeedText">0 MB/s</div>
+    <div id="senderTimeText">0 sec</div>
+
+    <h3>Receiver Progress</h3>
+    <div id="receiverProgressText">0%</div>
+    <progress id="receiverProgressBar" value="0" max="100"></progress>
+    
+    <div id="receiverSpeedText">0 MB/s</div>
+    <div id="receiverTimeText">0 sec</div>
     
     <div id="downloadArea"></div>
 

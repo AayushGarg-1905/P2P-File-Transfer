@@ -1,11 +1,20 @@
 const fileInput = document.getElementById("fileInput")
 const sendFileBtn = document.getElementById("sendFileBtn")
 const downloadArea = document.getElementById("downloadArea")
+const senderProgressText = document.getElementById("senderProgressText")
+const senderProgressBar = document.getElementById("senderProgressBar")
+const senderSpeedText = document.getElementById("senderSpeedText")
+const senderTimeText = document.getElementById("senderTimeText")
+
 console.log("fileTransfer.js loaded");
 sendFileBtn.addEventListener("click",sendFile)
 
 async function sendFile(){
     console.log("file send click")
+
+    let startTime = Date.now()
+    let lastLoggedTime = startTime
+
     const file = fileInput.files[0]
     console.log("file:: ",file)
     if(!file){
@@ -37,6 +46,17 @@ async function sendFile(){
 
         dataChannel.send(e.target.result);
         offset += e.target.result.byteLength;
+
+        let percent = ((offset / file.size) * 100).toFixed(2);
+        senderProgressBar.value = percent;
+        senderProgressText.innerText = `${percent}% (${(offset / 1024 / 1024).toFixed(2)} MB / ${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        // ---------- TIME ----------
+        let elapsedTime = (Date.now() - startTime) / 1000;
+        senderTimeText.innerText = elapsedTime.toFixed(2) + " sec";
+        // ---------- SPEED ----------
+        let speed = (offset / 1024 / 1024) / elapsedTime;
+        senderSpeedText.innerText = speed.toFixed(2) + " MB/s";
+
         if (offset < file.size) {
             const slice = file.slice(offset, offset + chunkSize);
             reader.readAsArrayBuffer(slice);
