@@ -1,45 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>P2P Transfer MVP</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RELAY — P2P File Transfer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
+    <div class="app">
+        <header>
+            <div class="logo">
+                <span class="logo-text">RELAY</span>
+                <span class="logo-tag">P2P · WebRTC</span>
+            </div>
+            <div class="header-status">
+                <div class="status-dot online" id="globalDot"></div>
+                <span id="globalStatusText">SIGNALING CONNECTED</span>
+            </div>
+        </header>
 
-    <h2>P2P File Transfer MVP</h2>
+        <main>
+            <div class="phase-label">establish connection</div>
 
-    <button id="createRoom">Create Room</button>
+            <div id="initPanel">
+                <div class="init-side">
+                    <div>
+                        <div class="init-side-label">sender</div>
+                        <h2>Create Room</h2>
+                    </div>
+                    <p class="init-desc">Generate a room ID and share it with the receiver. You'll send files once they
+                        join.</p>
+                    <button class="btn btn-primary btn-full" id="createRoom">⊕ &nbsp;Create Room</button>
+                </div>
+                <div class="init-divider"><span>OR</span></div>
+                <div class="init-side">
+                    <div>
+                        <div class="init-side-label">receiver</div>
+                        <h2>Join Room</h2>
+                    </div>
+                    <p class="init-desc">Enter the room ID from the sender to connect and receive files directly.</p>
+                    <div class="input-wrap">
+                        <label class="input-label" for="roomInput">Room ID</label>
+                        <input type="text" id="roomInput" placeholder="e.g. ab12cd" maxlength="6" />
+                    </div>
+                    <button class="btn btn-full" id="joinRoom">→ &nbsp;Join Room</button>
+                </div>
+            </div>
 
-    <br><br>
+            <div id="roomDisplay"></div>
 
-    <input type="text" id="roomInput" placeholder="Enter Room ID">
-    <button id="joinRoom">Join Room</button>
+            <div id="sessionPanel">
 
-    <h3 id="roomDisplay"></h3>
+                <!-- Sender card -->
+                <div class="panel-card" id="senderCard">
+                    <div class="panel-card-label">send file</div>
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" id="fileInput" />
+                        <span class="drop-icon">⬆</span>
+                        <div class="drop-primary">Click or drag a file here</div>
+                        <div class="drop-secondary">Any file type · No size limit</div>
+                        <div class="drop-file-name" id="selectedFileName"></div>
+                    </div>
+                    <div style="margin-top:14px;">
+                        <button class="btn btn-primary" id="sendFileBtn" disabled>Send File →</button>
+                    </div>
+                    <div class="progress-block" id="senderProgressBlock" style="margin-top:20px; display:none;">
+                        <div class="progress-track">
+                            <div class="progress-fill sender" id="senderFill"></div>
+                        </div>
+                        <div class="progress-meta">
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Progress</div>
+                                <div class="progress-stat-value" id="senderProgressText">0%</div>
+                            </div>
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Speed</div>
+                                <div class="progress-stat-value" id="senderSpeedText">— MB/s</div>
+                            </div>
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Elapsed</div>
+                                <div class="progress-stat-value" id="senderTimeText">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <progress id="senderProgressBar" value="0" max="100"></progress>
+                </div>
 
-    <input type="file" id="fileInput" />
-    <button id="sendFileBtn">Send File</button>
+                <!-- Receiver card -->
+                <div class="panel-card" id="receiverCard" style="display:none;">
+                    <div class="panel-card-label">incoming file</div>
+                    <div class="progress-block">
+                        <div class="progress-track">
+                            <div class="progress-fill receiver" id="receiverFill"></div>
+                        </div>
+                        <div class="progress-meta">
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Progress</div>
+                                <div class="progress-stat-value" id="receiverProgressText">Waiting…</div>
+                            </div>
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Speed</div>
+                                <div class="progress-stat-value" id="receiverSpeedText">— MB/s</div>
+                            </div>
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Elapsed</div>
+                                <div class="progress-stat-value" id="receiverTimeText">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <progress id="receiverProgressBar" value="0" max="100"></progress>
+                    <div style="margin-top:16px;">
+                        <div id="downloadArea"></div>
+                    </div>
+                </div>
 
-    <h3>Sender Progress</h3>
-    <div id="senderProgressText">0%</div>
-    <progress id="senderProgressBar" value="0" max="100"></progress>
-    <div id="senderSpeedText">0 MB/s</div>
-    <div id="senderTimeText">0 sec</div>
-
-    <h3>Receiver Progress</h3>
-    <div id="receiverProgressText">0%</div>
-    <progress id="receiverProgressBar" value="0" max="100"></progress>
-    
-    <div id="receiverSpeedText">0 MB/s</div>
-    <div id="receiverTimeText">0 sec</div>
-    
-    <div id="downloadArea"></div>
+            </div>
+        </main>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="ui.js"></script>
     <script src="app.js"></script>
     <script src="fileTransfer.js"></script>
-
 </body>
 
 </html>

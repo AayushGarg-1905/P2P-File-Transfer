@@ -97,10 +97,14 @@ async function createPeerConnection() {
 
     peerConnection.onconnectionstatechange = () => {
 
-        console.log(
-            "Connection state:",
-            peerConnection.connectionState
-        );
+        const state = peerConnection.connectionState;
+        console.log("Connection state:", state);
+
+        if (state === "connected") {
+            window.updateRoomBannerStatus("connected");
+        } else if (state === "disconnected" || state === "failed" || state === "closed") {
+            window.updateRoomBannerStatus("disconnected");
+        }
     };
 
     peerConnection.ondatachannel = (event) => {
