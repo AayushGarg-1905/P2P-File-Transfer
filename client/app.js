@@ -168,7 +168,7 @@ async function createPeerConnection() {
 function createDataChannel() {
 
     dataChannel = peerConnection.createDataChannel("fileTransfer");
-    dataChannel.bufferedAmountLowThreshold = 65536;
+    dataChannel.bufferedAmountLowThreshold = 512*1024 // 512KB
     console.log("Data channel created");
 
     dataChannel.onopen = () => {
