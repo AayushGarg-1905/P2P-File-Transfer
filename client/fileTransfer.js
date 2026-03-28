@@ -1,3 +1,5 @@
+// fileTransfer.js
+
 const fileInput = document.getElementById("fileInput")
 const sendFileBtn = document.getElementById("sendFileBtn")
 const downloadArea = document.getElementById("downloadArea")

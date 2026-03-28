@@ -1,3 +1,5 @@
+// signaling server
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -46,6 +48,10 @@ io.on('connection', socket => {
 
         if (rooms[roomId].offer) {
             socket.emit('receive-offer', rooms[roomId].offer);
+
+            for (const candidate of rooms[roomId].candidates.offerer) {
+                socket.emit('receive-ice-candidate', { role: 'offerer', candidate });
+            }
         }
     });
 
@@ -59,6 +65,10 @@ io.on('connection', socket => {
     socket.on('send-answer', ({ roomId, answer }) => {
         rooms[roomId].answer = answer;
         socket.to(roomId).emit('receive-answer', answer);
+  
+        for (const candidate of rooms[roomId].candidates.answerer) {
+            socket.to(roomId).emit('receive-ice-candidate', { role: 'answerer', candidate });
+        }
     });
 
     socket.on('send-ice-candidate', ({ roomId, role, candidate }) => {

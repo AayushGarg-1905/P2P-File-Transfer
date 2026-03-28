@@ -1,3 +1,5 @@
+// ui.js
+
 (function () {
     setInterval(() => {
         const sBar = document.getElementById('senderProgressBar');
