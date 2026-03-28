@@ -265,3 +265,18 @@ socket.on("receive-ice-candidate", async ({ role, candidate }) => {
 socket.on("peer-disconnected", () => {
     alert("Other user left the room");
 });
+
+
+socket.on('peer-rejoined', async () => {
+    console.log('Peer rejoined — restarting connection');
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+        dataChannel = null;
+    }
+    if (role === 'offerer') {
+        await createPeerConnection();
+        createDataChannel();
+        await createOffer();
+    }
+});

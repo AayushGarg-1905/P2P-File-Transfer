@@ -35,14 +35,19 @@ io.on('connection', socket => {
         socket.join(roomId);
         socket.roomId = roomId;
 
-        rooms[roomId] = rooms[roomId] || {
-            offer: null,
-            answer: null,
-            candidates: {
-                offerer: [],
-                answerer: []
+        if (rooms[roomId] && numberOfClients === 1) {
+            rooms[roomId].offer = null;
+            rooms[roomId].answer = null;
+            rooms[roomId].candidates = { offerer: [], answerer: [] };
+            socket.to(roomId).emit('peer-rejoined');
+        }
+       else {
+                rooms[roomId] = rooms[roomId] || {
+                    offer: null,
+                    answer: null,
+                    candidates: { offerer: [], answerer: [] }
+                };
             }
-        };
 
         console.log('Socket joined room:', roomId);
 
