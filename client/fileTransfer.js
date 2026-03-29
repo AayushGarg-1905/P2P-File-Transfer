@@ -11,67 +11,48 @@ const senderTimeText = document.getElementById("senderTimeText")
 console.log("fileTransfer.js loaded");
 sendFileBtn.addEventListener("click",sendFile)
 
-async function sendFile(){
-    console.log("file send click")
 
-    let startTime = Date.now()
-    let lastLoggedTime = startTime
+async function sendFile() {
+    const file = fileInput.files[0];
+    if (!file) { alert("no file selected"); return; }
+    if (!dataChannel || dataChannel.readyState !== "open") { alert("connection not ready!!"); return; }
 
-    const file = fileInput.files[0]
-    console.log("file:: ",file)
-    if(!file){
-        alert("no file selected")
-        return;
-    }
-
-    if(!dataChannel || dataChannel.readyState!=="open"){
-        alert("connection not ready !!");
-        return;
-    }
-
-    // sending metadata
-    dataChannel.send(JSON.stringify({
-        "type": "metadata",
-        "name": file.name,
-        "size": file.size
-    }))
-
-    // sending data chunks
-    const reader = new FileReader()
     const chunkSize = 256 * 1024;
+    const PIPELINE_SIZE = 4;
     let offset = 0;
-    
+    let startTime = Date.now();
 
-    reader.onload = async (e) => {
-        
+    dataChannel.send(JSON.stringify({ type: "metadata", name: file.name, size: file.size }));
+
+    async function readChunk(off) {
+        if (off >= file.size) return null;
+        return file.slice(off, off + chunkSize).arrayBuffer();
+    }
+
+    let pipeline = [];
+    for (let i = 0; i < PIPELINE_SIZE; i++) {
+        pipeline.push(readChunk(offset + i * chunkSize));
+    }
+
+    while (offset < file.size) {
         await waitForBufferCheck();
-        console.log("Buffer check passed")
-        dataChannel.send(e.target.result);
-        offset += e.target.result.byteLength;
+        const chunk = await pipeline.shift();
+        if (!chunk) break;
+
+        dataChannel.send(chunk);
+        offset += chunk.byteLength;
+
+        pipeline.push(readChunk(offset + (PIPELINE_SIZE - 1) * chunkSize));
 
         let percent = ((offset / file.size) * 100).toFixed(2);
         senderProgressBar.value = percent;
         senderProgressText.innerText = `${percent}% (${(offset / 1024 / 1024).toFixed(2)} MB / ${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-        // ---------- TIME ----------
-        let elapsedTime = (Date.now() - startTime) / 1000;
-        senderTimeText.innerText = elapsedTime.toFixed(2) + " sec";
-        // ---------- SPEED ----------
-        let speed = (offset / 1024 / 1024) / elapsedTime;
-        senderSpeedText.innerText = speed.toFixed(2) + " MB/s";
+        let elapsed = (Date.now() - startTime) / 1000;
+        senderTimeText.innerText = elapsed.toFixed(2) + " sec";
+        senderSpeedText.innerText = ((offset / 1024 / 1024) / elapsed).toFixed(2) + " MB/s";
+    }
 
-        if (offset < file.size) {
-            const slice = file.slice(offset, offset + chunkSize);
-            reader.readAsArrayBuffer(slice);
-        } else {
-            dataChannel.send(JSON.stringify({
-                type: "end"
-            }));
-        }
-        console.log("Sent:", offset, "/", file.size);
-    };
-    const slice = file.slice(0, chunkSize)
-    reader.readAsArrayBuffer(slice)
-
+    dataChannel.send(JSON.stringify({ type: "end" }));
 }
 
 function waitForBufferCheck() {
