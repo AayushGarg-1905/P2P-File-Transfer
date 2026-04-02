@@ -1,5 +1,5 @@
 // signaling server
-
+require("dotenv").config()
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -15,6 +15,14 @@ app.use(express.static(path.join(__dirname, "client")));
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "index.html"));
+});
+
+app.get("/turn-server-config",(req,res)=>{
+    res.json({
+        urls: process.env.TURN_URLS.split(','), // splits into array
+        username: process.env.TURN_USERNAME,
+        credential: process.env.TURN_CREDENTIAL
+    });
 });
 
 const rooms = {}; // { roomId: { offer: {}, answer: {}, candidates: { offerer: [], answerer: [] } } }

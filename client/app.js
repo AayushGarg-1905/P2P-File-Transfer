@@ -22,16 +22,20 @@ let fileMetadata = null;
 let receivedSize = 0;
 let receiveStartTime = 0;
 
-const configuration = {
-    iceServers: [
-        {
-            urls: [
-                "stun:stun.l.google.com:19302",
-                "stun:stun1.l.google.com:19302"
-            ]
-        }
-    ]
-};
+async function getTurnConfig() {
+    const turnServers = await fetch('/turn-server-config').then(r => r.json());
+    return {
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun.l.google.com:19302",
+                    "stun:stun1.l.google.com:19302"
+                ]
+            },
+            turnServers
+        ]
+    };
+}
 
 // -------------------- SOCKET CONNECT --------------------
 
@@ -80,7 +84,7 @@ joinRoomBtn.addEventListener("click", () => {
 // -------------------- PEER CONNECTION --------------------
 
 async function createPeerConnection() {
-
+    const configuration = await getTurnConfig(); 
     peerConnection = new RTCPeerConnection(configuration);
 
     console.log("Peer connection created");
@@ -106,6 +110,17 @@ async function createPeerConnection() {
             window.updateRoomBannerStatus("connected");
         } else if (state === "disconnected" || state === "failed" || state === "closed") {
             window.updateRoomBannerStatus("disconnected");
+        }
+    };
+    peerConnection.oniceconnectionstatechange = () => {
+        if (peerConnection.iceConnectionState === "connected") {
+            peerConnection.getStats().then(stats => {
+                stats.forEach(report => {
+                    if (report.type === "candidate-pair" && report.state === "succeeded") {
+                        console.log("Active candidate pair:", report);
+                    }
+                });
+            });
         }
     };
 
