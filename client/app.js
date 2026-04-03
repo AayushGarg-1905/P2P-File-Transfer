@@ -22,6 +22,10 @@ let fileMetadata = null;
 let receivedSize = 0;
 let receiveStartTime = 0;
 
+// Auto-fill RoomId From Url In Case Joining By Qr Scan
+const params = new URLSearchParams(window.location.search);
+if (params.get('room')) roomInput.value = params.get('room');
+
 async function getTurnConfig() {
     const turnServers = await fetch('/turn-server-config').then(r => r.json());
     return {

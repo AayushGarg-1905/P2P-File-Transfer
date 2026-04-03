@@ -53,6 +53,7 @@
         <div class="room-banner-left">
           <div class="room-banner-sublabel">${_isCreator ? 'your room id — share with receiver' : 'joined room'}</div>
           <div class="room-id-value">${_currentRoomId}</div>
+          ${_isCreator ? `<div id="qrContainer" style="margin-top:12px;"></div>` : ''}
         </div>
         <div class="room-banner-right">
           ${_isCreator ? `<button class="copy-btn" onclick="navigator.clipboard.writeText('${_currentRoomId}').then(()=>{this.textContent='✓ Copied';setTimeout(()=>this.textContent='Copy ID',2000)})">Copy ID</button>` : ''}
@@ -62,6 +63,15 @@
           </div>
         </div>
       </div>`;
+
+        if (_isCreator) {
+            console.log("Generating QR code ")
+            new QRCode(document.getElementById("qrContainer"), {
+                text: `${window.location.origin}?room=${_currentRoomId}`,
+                width: 120,
+                height: 120,
+            });
+        }
     }
 
     // Expose so app.js can update the banner when RTCPeerConnection state changes
