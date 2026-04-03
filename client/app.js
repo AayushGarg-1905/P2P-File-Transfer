@@ -88,7 +88,7 @@ joinRoomBtn.addEventListener("click", () => {
 // -------------------- PEER CONNECTION --------------------
 
 async function createPeerConnection() {
-    const configuration = await getTurnConfig(); 
+    const configuration = await getTurnConfig();
     peerConnection = new RTCPeerConnection(configuration);
 
     console.log("Peer connection created");
@@ -141,20 +141,51 @@ async function createPeerConnection() {
         dataChannel.onmessage = (msg) => {
             // console.log("Message received:", msg.data);
             console.log("data channel msg")
-            if(typeof msg.data === "string"){
+            if (typeof msg.data === "string") {
                 const data = JSON.parse(msg.data)
 
-                if(data.type=="metadata"){
+                if (data.type == "metadata") {
                     fileMetadata = data
                     receivedBuffers = []
                     receivedSize = 0;
                     receiveStartTime = Date.now();
                     receiverProgressBar.value = 0;
                     receiverProgressText.innerText = "0%";
-                    console.log("Metadata is received, now receving the file buffer: ",data.name)
+                    console.log("Metadata is received, now receving the file buffer: ", data.name)
                 }
 
-                if(data.type=="end"){
+                if (data.type == "text") {
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "received-text";
+                    console.log("data of text:  ",data)
+                    const preview = data.content.length > 60
+                        ? data.content.slice(0, 60) + "…"
+                        : data.content;
+
+                    wrapper.innerHTML = `
+        <div class="received-text-header" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.received-text-toggle').textContent = this.nextElementSibling.classList.contains('open') ? '▲ collapse' : '▼ expand'">
+            <div class="received-text-meta">
+                <span>⌨</span>
+                <span>Text received</span>
+                <span class="received-text-preview">${preview}</span>
+            </div>
+            <span class="received-text-toggle">▼ expand</span>
+        </div>
+        <div class="received-text-body">
+            <div class="received-text-content">${data.content}</div>
+            <div class="received-text-actions">
+                <button class="btn" style="font-size:0.7rem; padding:6px 12px;" 
+                    onclick="navigator.clipboard.writeText(this.closest('.received-text').querySelector('.received-text-content').textContent).then(()=>{this.textContent='✓ Copied';setTimeout(()=>this.textContent='Copy',2000)})">
+                    Copy
+                </button>
+            </div>
+        </div>
+    `;
+
+                    document.getElementById("downloadArea").appendChild(wrapper);
+                }
+
+                if (data.type == "end") {
                     console.log("File received complete")
                     const blob = new Blob(receivedBuffers)
                     const url = URL.createObjectURL(blob)
@@ -165,7 +196,7 @@ async function createPeerConnection() {
                     document.getElementById("downloadArea").appendChild(a)
                 }
             }
-            else{
+            else {
                 receivedBuffers.push(msg.data)
                 receivedSize += msg.data.byteLength
 
@@ -189,7 +220,7 @@ async function createPeerConnection() {
 function createDataChannel() {
 
     dataChannel = peerConnection.createDataChannel("fileTransfer");
-    dataChannel.bufferedAmountLowThreshold = 512*1024 // 512KB
+    dataChannel.bufferedAmountLowThreshold = 512 * 1024 // 512KB
     console.log("Data channel created");
 
     dataChannel.onopen = () => {

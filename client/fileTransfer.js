@@ -7,10 +7,12 @@ const senderProgressText = document.getElementById("senderProgressText")
 const senderProgressBar = document.getElementById("senderProgressBar")
 const senderSpeedText = document.getElementById("senderSpeedText")
 const senderTimeText = document.getElementById("senderTimeText")
+const sendTextBtn = document.getElementById("sendTextBtn");
+const textInput = document.getElementById("textInput");
 
 console.log("fileTransfer.js loaded");
 sendFileBtn.addEventListener("click",sendFile)
-
+sendTextBtn.addEventListener("click", sendTextData);
 
 async function sendFile() {
     const file = fileInput.files[0];
@@ -76,4 +78,15 @@ function waitForBufferCheck() {
             )
         }
     })
+}
+
+function sendTextData() {
+    const text = textInput.value.trim();
+    if (!text) { alert("Nothing to send"); return; }
+    if (!dataChannel || dataChannel.readyState !== "open") { alert("Connection not ready"); return; }
+
+    dataChannel.send(JSON.stringify({ type: "text", content: text }));
+    textInput.value = "";
+    sendTextBtn.textContent = "✓ Sent!";
+    setTimeout(() => sendTextBtn.textContent = "Send Text →", 2000);
 }

@@ -15,6 +15,13 @@
     }, 80);
 
     const roomDisplayEl = document.getElementById('roomDisplay');
+    const toggleTextBtn = document.getElementById('toggleTextBtn');
+    const textPanel = document.getElementById('textPanel');
+    toggleTextBtn.addEventListener('click', () => {
+        const isVisible = textPanel.style.display !== 'none';
+        textPanel.style.display = isVisible ? 'none' : 'block';
+        toggleTextBtn.textContent = isVisible ? '⌨  Share Text' : '✕  Close Text';
+    });
     let _roomText = '';
     let _isCreator = false;
     let _currentRoomId = '';

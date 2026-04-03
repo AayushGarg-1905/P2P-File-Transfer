@@ -563,6 +563,137 @@ progress {
     background: rgba(78, 203, 113, 0.08);
 }
 
+/* Replace your existing .received-text with all of this */
+
+.text-share-btn {
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+    border-style: dashed;
+}
+
+textarea#textInput {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 12px 14px;
+    width: 100%;
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    min-height: 100px;
+}
+
+textarea#textInput:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-glow);
+}
+
+textarea#textInput::placeholder {
+    color: var(--muted2);
+}
+
+#textPanel {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.2s ease both;
+}
+
+/* Receiver side — received text bubble */
+.received-text {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--amber);
+    border-radius: var(--radius);
+    animation: popIn 0.3s ease both;
+    overflow: hidden;
+}
+
+.received-text-header {
+    display: flex;
+    align-items: flex-start;
+    /* ← was center, breaks on small screens */
+    justify-content: space-between;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+    gap: 8px;
+    /* ← add gap */
+}
+
+.received-text-header:hover {
+    background: var(--amber-glow);
+}
+
+.received-text-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    min-width: 0;
+    /* ← allows text-overflow to work inside flex */
+    flex: 1;
+    /* ← take available space */
+}
+
+.received-text-toggle {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    padding-top: 2px;
+    /* ← align with top of meta text */
+}
+
+.received-text-preview {
+    font-size: 0.75rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+    /* ← reduce from 260px for mobile */
+}
+
+.received-text-body {
+    display: none;
+    padding: 0 14px 14px 14px;
+    border-top: 1px solid var(--border);
+}
+
+.received-text-body.open {
+    display: block;
+}
+
+.received-text-content {
+    font-size: 0.82rem;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
+    margin-top: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.received-text-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
 @keyframes fadeDown {
     from {
         opacity: 0;
@@ -629,5 +760,13 @@ progress {
 
     .progress-meta {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .received-text-preview {
+        max-width: 120px;
+    }
+
+    .received-text-content {
+        max-height: 150px;
     }
 }
