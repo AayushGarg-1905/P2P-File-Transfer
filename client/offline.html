@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RELAY — Offline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .offline-wrap {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .offline-icon {
+            font-size: 3rem;
+            opacity: 0.4;
+        }
+
+        .offline-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.4rem;
+            letter-spacing: 0.1em;
+            color: #f5a623;
+        }
+
+        .offline-sub {
+            font-size: 0.8rem;
+            color: #6b6858;
+            max-width: 320px;
+            line-height: 1.7;
+        }
+
+        .offline-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e05252;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .offline-status {
+            display: flex;
+            align-items: center;
+            font-size: 0.68rem;
+            color: #6b6858;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="offline-wrap">
+        <div class="offline-icon">◌</div>
+        <div class="offline-title">You're Offline</div>
+        <div class="offline-status">
+            <span class="offline-dot"></span>
+            No connection detected
+        </div>
+        <p class="offline-sub">
+            RELAY needs an active internet connection to establish peer-to-peer transfers.
+            Please reconnect and try again.
+        </p>
+        <button class="btn" onclick="window.location.reload()">↺ &nbsp;Try Again</button>
+    </div>
+</body>
+
+</html>
