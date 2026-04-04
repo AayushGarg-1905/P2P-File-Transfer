@@ -193,6 +193,7 @@ async function createPeerConnection() {
                     a.href = url;
                     a.download = fileMetadata.name
                     a.innerText = "Download " + fileMetadata.name;
+                    a.innerHTML = `<span>${fileMetadata.name}</span>`;
                     document.getElementById("downloadArea").appendChild(a)
                 }
             }

@@ -1,7 +1,7 @@
-<svg width="100%" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
-  <rect width="680" height="680" rx="120" fill="#0d0d0b" style="fill:rgb(13, 13, 11);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-  <circle cx="340" cy="400" r="28" fill="#f5a623" style="fill:rgb(245, 166, 35);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-  <path d="M220 370 Q340 220 460 370" fill="none" stroke="#f5a623" stroke-width="28" stroke-linecap="round" opacity="0.85" style="fill:none;stroke:rgb(245, 166, 35);color:rgb(255, 255, 255);stroke-width:28px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.85;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-  <path d="M160 320 Q340 120 520 320" fill="none" stroke="#f5a623" stroke-width="22" stroke-linecap="round" opacity="0.5" style="fill:none;stroke:rgb(245, 166, 35);color:rgb(255, 255, 255);stroke-width:22px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.5;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-  <path d="M100 270 Q340 20 580 270" fill="none" stroke="#f5a623" stroke-width="16" stroke-linecap="round" opacity="0.25" style="fill:none;stroke:rgb(245, 166, 35);color:rgb(255, 255, 255);stroke-width:16px;stroke-linecap:round;stroke-linejoin:miter;opacity:0.25;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="90" fill="#0f0f13"/>
+  <circle cx="256" cy="300" r="28" fill="#4e9eff"/>
+  <path d="M160 270 Q256 140 352 270" fill="none" stroke="#4e9eff" stroke-width="28" stroke-linecap="round" opacity="0.85"/>
+  <path d="M100 220 Q256 40 412 220" fill="none" stroke="#4e9eff" stroke-width="22" stroke-linecap="round" opacity="0.5"/>
+  <path d="M40 170 Q256 -40 472 170" fill="none" stroke="#4e9eff" stroke-width="16" stroke-linecap="round" opacity="0.25"/>
 </svg>
