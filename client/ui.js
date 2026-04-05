@@ -84,27 +84,34 @@
         }
     }
 
-    // Expose so app.js can update the banner when RTCPeerConnection state changes
     window.updateRoomBannerStatus = function (state) {
         if (_currentRoomId) renderRoomBanner(state);
     };
 
-    // -------------------- FILE INPUT --------------------
     const fileInput = document.getElementById('fileInput');
     const selectedFileName = document.getElementById('selectedFileName');
     const sendFileBtn = document.getElementById('sendFileBtn');
 
     fileInput.addEventListener('change', function () {
-        const name = this.files[0]?.name;
-        selectedFileName.textContent = name || '';
-        sendFileBtn.disabled = !name;
+        const files = Array.from(this.files);
+        if (!files.length) {
+            selectedFileName.textContent = '';
+            sendFileBtn.disabled = true;
+            return;
+        }
+        if (files.length === 1) {
+            selectedFileName.textContent = files[0].name;
+        } else {
+            selectedFileName.textContent = `${files.length} files selected`;
+        }
+        sendFileBtn.disabled = false;
     });
 
     sendFileBtn.addEventListener('click', function () {
         document.getElementById('senderProgressBlock').style.display = 'flex';
     }, true);
 
-    // -------------------- DROP ZONE --------------------
+
     const dz = document.getElementById('dropZone');
     let dragCounter = 0;
 
@@ -136,9 +143,75 @@
         dragCounter = 0;
 
         if (e.dataTransfer.files.length) {
-            fileInput.files = e.dataTransfer.files;
+            fileInput.files = e.dataTransfer.files; 
             fileInput.dispatchEvent(new Event('change'));
         }
     });
+
+    const queueDropdown = document.getElementById('queueDropdown');
+    const queueDropdownToggle = document.getElementById('queueDropdownToggle');
+    const queueDropdownBody = document.getElementById('queueDropdownBody');
+    const queueDropdownLabel = document.getElementById('queueDropdownLabel');
+    const queueDropdownArrow = document.getElementById('queueDropdownArrow');
+
+    let _queueFiles = [];
+    let _dropdownOpen = false;
+
+    queueDropdownToggle.addEventListener('click', () => {
+        _dropdownOpen = !_dropdownOpen;
+        queueDropdownBody.style.display = _dropdownOpen ? 'block' : 'none';
+        queueDropdownArrow.textContent = _dropdownOpen ? '▲' : '▼';
+    });
+
+    // called from fileTransfer.js
+    // files = array of File objects (initial population) or null (just update highlight)
+    // activeIndex = index of currently sending file, -1 = none
+    window.updateQueueDropdown = function (files, activeIndex) {
+        if (files !== null) {
+            _queueFiles = files;
+        }
+
+        if (!_queueFiles.length) {
+            queueDropdown.style.display = 'none';
+            queueDropdownBody.innerHTML = '';
+            _dropdownOpen = false;
+            queueDropdownBody.style.display = 'none';
+            queueDropdownArrow.textContent = '▼';
+            return;
+        }
+
+        // update label
+        const remaining = _queueFiles.length - (activeIndex + 1);
+        queueDropdownLabel.textContent = activeIndex === -1
+            ? `${_queueFiles.length} file${_queueFiles.length > 1 ? 's' : ''} queued`
+            : `Sending ${activeIndex + 1} of ${_queueFiles.length}`;
+
+        queueDropdown.style.display = 'block';
+
+        // rebuild list
+        queueDropdownBody.innerHTML = _queueFiles.map((f, i) => {
+            let stateClass = 'queue-item-pending';
+            let stateLabel = 'queued';
+            let stateIcon = '○';
+
+            if (i < activeIndex) {
+                stateClass = 'queue-item-done';
+                stateLabel = 'sent';
+                stateIcon = '✓';
+            } else if (i === activeIndex) {
+                stateClass = 'queue-item-active';
+                stateLabel = 'sending…';
+                stateIcon = '▶';
+            }
+
+            return `
+            <div class="queue-item ${stateClass}">
+                <span class="queue-item-icon">${stateIcon}</span>
+                <span class="queue-item-name">${f.name}</span>
+                <span class="queue-item-label">${stateLabel}</span>
+            </div>
+        `;
+        }).join('');
+    };
 
 })();

@@ -779,6 +779,113 @@ progress {
     object-fit: cover;
 }
 
+.queue-status {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: var(--radius);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.queue-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    user-select: none;
+    transition: border-color 0.15s;
+}
+
+.queue-dropdown-header:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+.queue-dropdown-arrow {
+    font-size: 0.6rem;
+    color: var(--muted3);
+}
+
+.queue-dropdown-body {
+    display: none;
+    border: 1px solid var(--border2);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden;
+}
+
+.queue-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    font-size: 0.72rem;
+    border-top: 1px solid var(--border);
+}
+
+.queue-item-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted);
+}
+
+.queue-item-icon {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    width: 14px;
+    text-align: center;
+}
+
+.queue-item-label {
+    flex-shrink: 0;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.queue-item-pending .queue-item-icon,
+.queue-item-pending .queue-item-label {
+    color: var(--muted3);
+}
+
+.queue-item-active {
+    background: var(--blue-glow);
+}
+
+.queue-item-active .queue-item-icon,
+.queue-item-active .queue-item-label {
+    color: var(--blue);
+}
+
+.queue-item-active .queue-item-name {
+    color: var(--text);
+}
+
+.queue-item-done .queue-item-icon,
+.queue-item-done .queue-item-label {
+    color: var(--green);
+}
+
+.queue-item-done .queue-item-name {
+    color: var(--muted3);
+    text-decoration: line-through;
+}
 /* -------------------- ANIMATIONS -------------------- */
 
 @keyframes fadeDown {

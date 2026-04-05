@@ -1,5 +1,3 @@
-// fileTransfer.js
-
 const fileInput = document.getElementById("fileInput")
 const sendFileBtn = document.getElementById("sendFileBtn")
 const downloadArea = document.getElementById("downloadArea")
@@ -7,18 +5,72 @@ const senderProgressText = document.getElementById("senderProgressText")
 const senderProgressBar = document.getElementById("senderProgressBar")
 const senderSpeedText = document.getElementById("senderSpeedText")
 const senderTimeText = document.getElementById("senderTimeText")
+const queueStatus = document.getElementById("queueStatus")
+const queueStatusText = document.getElementById("queueStatusText")
 const sendTextBtn = document.getElementById("sendTextBtn");
 const textInput = document.getElementById("textInput");
 
 console.log("fileTransfer.js loaded");
-sendFileBtn.addEventListener("click",sendFile)
+sendFileBtn.addEventListener("click", startQueue);
 sendTextBtn.addEventListener("click", sendTextData);
 
-async function sendFile() {
-    const file = fileInput.files[0];
-    if (!file) { alert("no file selected"); return; }
-    if (!dataChannel || dataChannel.readyState !== "open") { alert("connection not ready!!"); return; }
+let fileQueue = [];
+let isTransferring = false;
+let queueTotal = 0;
+let queueIndex = 0;
 
+function startQueue() {
+    const files = Array.from(fileInput.files);
+    if (!files.length) { alert("No files selected"); return; }
+    if (!dataChannel || dataChannel.readyState !== "open") { alert("Connection not ready"); return; }
+    if (isTransferring) { alert("Transfer already in progress"); return; }
+
+    fileQueue = files;
+    queueTotal = files.length;
+    queueIndex = 0;
+
+    document.getElementById('senderProgressBlock').style.display = 'flex';
+    window.updateQueueDropdown(files, -1);
+    sendNextFile();
+}
+
+
+function sendNextFile() {
+    if (fileQueue.length === 0) {
+        isTransferring = false;
+        queueStatus.style.display = 'none';
+        queueStatusText.textContent = '';
+        fileInput.value = '';
+        document.getElementById('selectedFileName').textContent = '';
+        sendFileBtn.disabled = true;
+
+        window.updateQueueDropdown([], -1);
+        return;
+    }
+
+    isTransferring = true;
+    sendFileBtn.disabled = true;
+
+    const file = fileQueue[0];
+    queueIndex++;
+
+    if (queueTotal > 1) {
+        queueStatus.style.display = 'block';
+        queueStatusText.textContent = `File ${queueIndex} of ${queueTotal} — ${file.name}`;
+    }
+    fileQueue.shift(); 
+
+    senderProgressBar.value = 0;
+    senderProgressText.innerText = '0%';
+    senderSpeedText.innerText = '— MB/s';
+    senderTimeText.innerText = '—';
+
+    sendFile(file).then(() => {
+        sendNextFile();
+    });
+}
+
+async function sendFile(file) {
     const chunkSize = 256 * 1024;
     const PIPELINE_SIZE = 4;
     let offset = 0;
@@ -59,26 +111,19 @@ async function sendFile() {
 
 function waitForBufferCheck() {
     return new Promise(resolve => {
-        const bufferLimit = 1 * 1024 * 1024
+        const bufferLimit = 1 * 1024 * 1024;
         if (dataChannel.bufferedAmount < bufferLimit) {
-            resolve()
+            resolve();
         } else {
-
             const handler = () => {
-                dataChannel.removeEventListener(
-                    "bufferedamountlow",
-                    handler
-                )
-                resolve()
+                dataChannel.removeEventListener("bufferedamountlow", handler);
+                resolve();
             }
-
-            dataChannel.addEventListener(
-                "bufferedamountlow",
-                handler
-            )
+            dataChannel.addEventListener("bufferedamountlow", handler);
         }
-    })
+    });
 }
+
 
 function sendTextData() {
     const text = textInput.value.trim();

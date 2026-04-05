@@ -65,12 +65,21 @@
                 <!-- Sender card -->
                 <div class="panel-card" id="senderCard">
                     <div class="panel-card-label">send file</div>
+                    <!-- replace the drop-zone div -->
                     <div class="drop-zone" id="dropZone">
-                        <input type="file" id="fileInput" />
+                        <input type="file" id="fileInput" multiple />
                         <span class="drop-icon">⬆</span>
-                        <div class="drop-primary">Click or drag a file here</div>
-                        <div class="drop-secondary">Any file type · No size limit</div>
+                        <div class="drop-primary">Click or drag files here</div>
+                        <div class="drop-secondary">Any file type · Multiple files supported</div>
                         <div class="drop-file-name" id="selectedFileName"></div>
+                    </div>
+                    <!-- add this between drop-zone and the send button div -->
+                    <div id="queueDropdown" style="display:none; margin-top:10px;">
+                        <div class="queue-dropdown-header" id="queueDropdownToggle">
+                            <span id="queueDropdownLabel">0 files queued</span>
+                            <span class="queue-dropdown-arrow" id="queueDropdownArrow">▼</span>
+                        </div>
+                        <div class="queue-dropdown-body" id="queueDropdownBody"></div>
                     </div>
                     <div style="margin-top:14px;">
                         <button class="btn btn-primary" id="sendFileBtn" disabled>Send File →</button>
@@ -103,6 +112,9 @@
                                 <div class="progress-stat-label">Elapsed</div>
                                 <div class="progress-stat-value" id="senderTimeText">—</div>
                             </div>
+                        </div>
+                        <div class="queue-status" id="queueStatus" style="display:none;">
+                            <span id="queueStatusText"></span>
                         </div>
                     </div>
                     <progress id="senderProgressBar" value="0" max="100"></progress>
