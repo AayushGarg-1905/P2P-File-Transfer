@@ -354,6 +354,30 @@ textarea#textInput::placeholder {
     color: var(--muted2);
 }
 
+textarea#textInputAnswerer {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 12px 14px;
+    width: 100%;
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    min-height: 100px;
+}
+
+textarea#textInputAnswerer:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-glow);
+}
+
+textarea#textInputAnswerer::placeholder {
+    color: var(--muted2);
+}
 /* -------------------- ROOM DISPLAY -------------------- */
 
 #roomDisplay {
@@ -672,7 +696,21 @@ progress {
     gap: 10px;
     animation: fadeUp 0.2s ease both;
 }
-
+#textPanelAnswerer {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.2s ease both;
+}
+#sendTextBtnAnswerer {
+margin-top: 1rem;
+}
+#sendTextBtn{
+    margin-top: 1rem;
+}
 /* -------------------- RECEIVED TEXT -------------------- */
 
 .received-text {
