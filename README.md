@@ -1,19 +1,36 @@
-# 🔄 P2P File Transfer
+# RELAY — P2P File Transfer
 
-Transfer your files directly between peers without the need for a centralized server. Built with **WebRTC** and **Socket.io** for secure, real-time peer-to-peer communication.
-[Try it now](https://p2p-file-transfer-gmnj.onrender.com)
-## Overview
+> Transfer files directly between your devices. No login. No cloud. No trace.
 
-P2P File Transfer is a minimal MVP (Minimum Viable Product) that demonstrates the feasibility of file transfer over WebRTC data channels. Two users can connect to the same room and transfer files directly to each other with zero intermediary storage—what you send is what they receive, instantly.
+[**Try it live →**](https://p2p-file-transfer-gmnj.onrender.com)
 
-## ✨ Features
+---
 
-- **Direct Peer-to-Peer Connection**: Files transfer directly between peers using WebRTC data channels
-- **No Server Storage**: Files don't get stored on the signaling server—it only handles connection negotiation
-- **Real-Time Communication**: Built with Socket.io for signaling and WebRTC for data transfer
-- **Room-Based Matching**: Users join rooms to find and connect with transfer partners
-- **Automatic Cleanup**: Rooms are automatically deleted when all peers disconnect
-- **CORS Enabled**: Ready for cross-origin requests
-- **Bi-Directional Transfers**: Both peers can send files simultaneously, each with independent transfer controls
-- **Multiple File Transfer**: Queue and send multiple files in sequence with progress tracking for each
-- **Text Sharing**: Send instant text messages alongside file transfers
+## What is this?
+
+RELAY is a browser-based file transfer tool built on WebRTC. Open it on two devices, share a room ID or scan a QR code, and transfer files directly — peer to peer, no intermediary storage, no account required.
+
+The signaling server exists only to help the two peers find each other. Once connected, it steps out of the way entirely. Your files never touch it.
+
+---
+
+## Features
+
+### Core Transfer
+- **True P2P** — files travel directly between browsers over WebRTC data channels
+- **Multi-file queue** — select multiple files at once, transferred sequentially with per-file progress
+- **Bidirectional** — both sides can send files and text, not just the room creator
+- **Text & snippet sharing** — send a URL, a password, a code snippet instantly alongside files
+- **No size limit** — transfer is constrained only by your connection, not an upload cap
+
+### Connection
+- **Room-based** — share a 6-character room ID or let the other device scan a QR code
+- **TURN fallback** — automatically relays through a TURN server when direct connection fails (symmetric NAT, VPN, etc.)
+
+### Experience
+- **PWA installable** — add to home screen on iOS and Android, works like a native app
+- **Offline page** — graceful fallback when there's no connection
+- **No login** — no account, no email, no tracking
+- **No cloud** — nothing is stored anywhere
+
+---
