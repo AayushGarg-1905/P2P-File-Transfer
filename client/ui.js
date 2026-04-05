@@ -157,65 +157,82 @@
     const queueDropdownLabel = document.getElementById('queueDropdownLabel');
     const queueDropdownArrow = document.getElementById('queueDropdownArrow');
 
-    let _queueFiles = [];
-    let _dropdownOpen = false;
-
-    queueDropdownToggle.addEventListener('click', () => {
-        _dropdownOpen = !_dropdownOpen;
-        queueDropdownBody.style.display = _dropdownOpen ? 'block' : 'none';
-        queueDropdownArrow.textContent = _dropdownOpen ? '▲' : '▼';
-    });
-
-    // called from fileTransfer.js
-    // files = array of File objects (initial population) or null (just update highlight)
-    // activeIndex = index of currently sending file, -1 = none
-    window.updateQueueDropdown = function (files, activeIndex) {
-        if (files !== null) {
-            _queueFiles = files;
+    // Queue dropdown setup - extract shared logic
+    const queueConfig = {
+        offerer: {
+            dropdown: document.getElementById('queueDropdown'),
+            toggle: document.getElementById('queueDropdownToggle'),
+            body: document.getElementById('queueDropdownBody'),
+            label: document.getElementById('queueDropdownLabel'),
+            arrow: document.getElementById('queueDropdownArrow'),
+            files: [],
+            isOpen: false
+        },
+        answerer: {
+            dropdown: document.getElementById('queueDropdownAnswerer'),
+            toggle: document.getElementById('queueDropdownToggleAnswerer'),
+            body: document.getElementById('queueDropdownBodyAnswerer'),
+            label: document.getElementById('queueDropdownLabelAnswerer'),
+            arrow: document.getElementById('queueDropdownArrowAnswerer'),
+            files: [],
+            isOpen: false
         }
+    };
 
-        if (!_queueFiles.length) {
-            queueDropdown.style.display = 'none';
-            queueDropdownBody.innerHTML = '';
-            _dropdownOpen = false;
-            queueDropdownBody.style.display = 'none';
-            queueDropdownArrow.textContent = '▼';
-            return;
-        }
+    // Initialize queue dropdowns
+    function createQueueDropdown(role) {
+        const cfg = queueConfig[role];
+        cfg.toggle.addEventListener('click', () => {
+            cfg.isOpen = !cfg.isOpen;
+            cfg.body.style.display = cfg.isOpen ? 'block' : 'none';
+            cfg.arrow.textContent = cfg.isOpen ? '▲' : '▼';
+        });
 
-        // update label
-        const remaining = _queueFiles.length - (activeIndex + 1);
-        queueDropdownLabel.textContent = activeIndex === -1
-            ? `${_queueFiles.length} file${_queueFiles.length > 1 ? 's' : ''} queued`
-            : `Sending ${activeIndex + 1} of ${_queueFiles.length}`;
+        return function updateQueueDropdown(files, activeIndex) {
+            if (files !== null) cfg.files = files;
 
-        queueDropdown.style.display = 'block';
-
-        // rebuild list
-        queueDropdownBody.innerHTML = _queueFiles.map((f, i) => {
-            let stateClass = 'queue-item-pending';
-            let stateLabel = 'queued';
-            let stateIcon = '○';
-
-            if (i < activeIndex) {
-                stateClass = 'queue-item-done';
-                stateLabel = 'sent';
-                stateIcon = '✓';
-            } else if (i === activeIndex) {
-                stateClass = 'queue-item-active';
-                stateLabel = 'sending…';
-                stateIcon = '▶';
+            if (!cfg.files.length) {
+                cfg.dropdown.style.display = 'none';
+                cfg.body.innerHTML = '';
+                cfg.isOpen = false;
+                cfg.body.style.display = 'none';
+                cfg.arrow.textContent = '▼';
+                return;
             }
 
-            return `
+            cfg.label.textContent = activeIndex === -1
+                ? `${cfg.files.length} file${cfg.files.length > 1 ? 's' : ''} queued`
+                : `Sending ${activeIndex + 1} of ${cfg.files.length}`;
+
+            cfg.dropdown.style.display = 'block';
+
+            cfg.body.innerHTML = cfg.files.map((f, i) => {
+                let stateClass = 'queue-item-pending';
+                let stateLabel = 'queued';
+                let stateIcon = '○';
+
+                if (i < activeIndex) {
+                    stateClass = 'queue-item-done';
+                    stateLabel = 'sent';
+                    stateIcon = '✓';
+                } else if (i === activeIndex) {
+                    stateClass = 'queue-item-active';
+                    stateLabel = 'sending…';
+                    stateIcon = '▶';
+                }
+
+                return `
             <div class="queue-item ${stateClass}">
                 <span class="queue-item-icon">${stateIcon}</span>
                 <span class="queue-item-name">${f.name}</span>
                 <span class="queue-item-label">${stateLabel}</span>
-            </div>
-        `;
-        }).join('');
-    };
+            </div>`;
+            }).join('');
+        };
+    }
+
+    window.updateQueueDropdown = createQueueDropdown('offerer');
+    window.updateQueueDropdownAnswerer = createQueueDropdown('answerer');
 
     window.onDataChannelOpen = function () {
         if (!_isCreator) {
@@ -304,54 +321,5 @@
             fileInputAnswerer.dispatchEvent(new Event('change'));
         }
     });
-
-    
-    const queueDropdownAnswerer = document.getElementById('queueDropdownAnswerer');
-    const queueDropdownToggleAnswerer = document.getElementById('queueDropdownToggleAnswerer');
-    const queueDropdownBodyAnswerer = document.getElementById('queueDropdownBodyAnswerer');
-    const queueDropdownLabelAnswerer = document.getElementById('queueDropdownLabelAnswerer');
-    const queueDropdownArrowAnswerer = document.getElementById('queueDropdownArrowAnswerer');
-
-    let _queueFilesAnswerer = [];
-    let _dropdownOpenAnswerer = false;
-
-    queueDropdownToggleAnswerer.addEventListener('click', () => {
-        _dropdownOpenAnswerer = !_dropdownOpenAnswerer;
-        queueDropdownBodyAnswerer.style.display = _dropdownOpenAnswerer ? 'block' : 'none';
-        queueDropdownArrowAnswerer.textContent = _dropdownOpenAnswerer ? '▲' : '▼';
-    });
-
-    window.updateQueueDropdownAnswerer = function (files, activeIndex) {
-        if (files !== null) _queueFilesAnswerer = files;
-
-        if (!_queueFilesAnswerer.length) {
-            queueDropdownAnswerer.style.display = 'none';
-            queueDropdownBodyAnswerer.innerHTML = '';
-            _dropdownOpenAnswerer = false;
-            queueDropdownBodyAnswerer.style.display = 'none';
-            queueDropdownArrowAnswerer.textContent = '▼';
-            return;
-        }
-
-        queueDropdownLabelAnswerer.textContent = activeIndex === -1
-            ? `${_queueFilesAnswerer.length} file${_queueFilesAnswerer.length > 1 ? 's' : ''} queued`
-            : `Sending ${activeIndex + 1} of ${_queueFilesAnswerer.length}`;
-
-        queueDropdownAnswerer.style.display = 'block';
-
-        queueDropdownBodyAnswerer.innerHTML = _queueFilesAnswerer.map((f, i) => {
-            let stateClass = 'queue-item-pending';
-            let stateLabel = 'queued';
-            let stateIcon = '○';
-            if (i < activeIndex) { stateClass = 'queue-item-done'; stateLabel = 'sent'; stateIcon = '✓'; }
-            else if (i === activeIndex) { stateClass = 'queue-item-active'; stateLabel = 'sending…'; stateIcon = '▶'; }
-            return `
-            <div class="queue-item ${stateClass}">
-                <span class="queue-item-icon">${stateIcon}</span>
-                <span class="queue-item-name">${f.name}</span>
-                <span class="queue-item-label">${stateLabel}</span>
-            </div>`;
-        }).join('');
-    };
 
 })();

@@ -1,6 +1,7 @@
 // fileTransfer.js
 
 
+// DOM Element References
 const fileInput = document.getElementById("fileInput")
 const sendFileBtn = document.getElementById("sendFileBtn")
 const senderProgressText = document.getElementById("senderProgressText")
@@ -11,7 +12,6 @@ const queueStatus = document.getElementById("queueStatus")
 const queueStatusText = document.getElementById("queueStatusText")
 const sendTextBtn = document.getElementById("sendTextBtn");
 const textInput = document.getElementById("textInput");
-
 
 const fileInputAnswerer = document.getElementById("fileInputAnswerer")
 const sendFileBtnAnswerer = document.getElementById("sendFileBtnAnswerer")
@@ -26,137 +26,125 @@ const textInputAnswerer = document.getElementById("textInputAnswerer");
 
 console.log("fileTransfer.js loaded");
 
+// Element configuration objects for role-agnostic functions
+const offererElements = {
+    fileInput,
+    fileInputLabel: document.getElementById('selectedFileName'),
+    sendFileBtn,
+    progressBar: senderProgressBar,
+    progressText: senderProgressText,
+    speedText: senderSpeedText,
+    timeText: senderTimeText,
+    queueStatus,
+    queueStatusText,
+    progressBlock: document.getElementById('senderProgressBlock'),
+    textInput,
+    sendTextBtn,
+    updateQueueDropdown: window.updateQueueDropdown
+};
 
-let fileQueue = [];
-let isTransferring = false;
-let queueTotal = 0;
-let queueIndex = 0;
+const answererElements = {
+    fileInput: fileInputAnswerer,
+    fileInputLabel: document.getElementById('selectedFileNameAnswerer'),
+    sendFileBtn: sendFileBtnAnswerer,
+    progressBar: senderProgressBarAnswerer,
+    progressText: senderProgressTextAnswerer,
+    speedText: senderSpeedTextAnswerer,
+    timeText: senderTimeTextAnswerer,
+    queueStatus: queueStatusAnswerer,
+    queueStatusText: queueStatusTextAnswerer,
+    progressBlock: document.getElementById('senderProgressBlockAnswerer'),
+    textInput: textInputAnswerer,
+    sendTextBtn: sendTextBtnAnswerer,
+    updateQueueDropdown: window.updateQueueDropdownAnswerer
+};
 
-let fileQueueAnswerer = [];
-let isTransferringAnswerer = false;
-let queueTotalAnswerer = 0;
-let queueIndexAnswerer = 0;
+// Transfer state (role-agnostic)
+const transferState = {
+    offerer: {
+        fileQueue: [],
+        isTransferring: false,
+        queueTotal: 0,
+        queueIndex: 0
+    },
+    answerer: {
+        fileQueue: [],
+        isTransferring: false,
+        queueTotal: 0,
+        queueIndex: 0
+    }
+};
+
+sendFileBtn.addEventListener("click", () => startQueue(offererElements));
+sendFileBtnAnswerer.addEventListener("click", () => startQueue(answererElements));
+sendTextBtn.addEventListener("click", () => sendTextData(offererElements));
+sendTextBtnAnswerer.addEventListener("click", () => sendTextData(answererElements));
 
 
-sendFileBtn.addEventListener("click", startQueue);
-sendFileBtnAnswerer.addEventListener("click", startQueueAnswerer);
-sendTextBtn.addEventListener("click", sendTextData);
-sendTextBtnAnswerer.addEventListener("click", sendTextDataAnswerer);
-
-
-function startQueue() {
-    const files = Array.from(fileInput.files);
+function startQueue(elements) {
+    const role = elements === offererElements ? 'offerer' : 'answerer';
+    const state = transferState[role];
+    const files = Array.from(elements.fileInput.files);
+    
     if (!files.length) { alert("No files selected"); return; }
     if (!dataChannel || dataChannel.readyState !== "open") { alert("Connection not ready"); return; }
-    if (isTransferring) { alert("Transfer already in progress"); return; }
+    if (state.isTransferring) { alert("Transfer already in progress"); return; }
     if (window.peerIsTransferring) { alert("Peer is currently sending. Please wait."); return; }
 
-    fileQueue = files;
-    queueTotal = files.length;
-    queueIndex = 0;
+    state.fileQueue = files;
+    state.queueTotal = files.length;
+    state.queueIndex = 0;
 
-    document.getElementById('senderProgressBlock').style.display = 'flex';
-    window.updateQueueDropdown(files, -1);
+    elements.progressBlock.style.display = 'flex';
+    elements.updateQueueDropdown(files, -1);
 
     dataChannel.send(JSON.stringify({ type: "transfer-start" }));
-    sendNextFile();
+    sendNextFile(elements);
 }
 
-function sendNextFile() {
-    if (fileQueue.length === 0) {
-        isTransferring = false;
+function sendNextFile(elements) {
+    const role = elements === offererElements ? 'offerer' : 'answerer';
+    const state = transferState[role];
+
+    if (state.fileQueue.length === 0) {
+        state.isTransferring = false;
         window.isTransferring = false;
-        queueStatus.style.display = 'none';
-        queueStatusText.textContent = '';
-        fileInput.value = '';
-        document.getElementById('selectedFileName').textContent = '';
-        sendFileBtn.disabled = true;
-        window.updateQueueDropdown([], -1);
+        elements.queueStatus.style.display = 'none';
+        elements.queueStatusText.textContent = '';
+        elements.fileInput.value = '';
+        elements.fileInputLabel.textContent = '';
+        elements.sendFileBtn.disabled = true;
+        elements.updateQueueDropdown([], -1);
         dataChannel.send(JSON.stringify({ type: "transfer-end" }));
         return;
     }
 
-    isTransferring = true;
+    state.isTransferring = true;
     window.isTransferring = true;
-    sendFileBtn.disabled = true;
+    elements.sendFileBtn.disabled = true;
 
-    const file = fileQueue[0];
-    queueIndex++;
-    window.updateQueueDropdown(null, queueIndex - 1);
+    const file = state.fileQueue[0];
+    state.queueIndex++;
+    elements.updateQueueDropdown(null, state.queueIndex - 1);
 
-    if (queueTotal > 1) {
-        queueStatus.style.display = 'block';
-        queueStatusText.textContent = `File ${queueIndex} of ${queueTotal} — ${file.name}`;
+    if (state.queueTotal > 1) {
+        elements.queueStatus.style.display = 'block';
+        elements.queueStatusText.textContent = `File ${state.queueIndex} of ${state.queueTotal} — ${file.name}`;
     }
 
-    fileQueue.shift();
+    state.fileQueue.shift();
 
-    senderProgressBar.value = 0;
-    senderProgressText.innerText = '0%';
-    senderSpeedText.innerText = '— MB/s';
-    senderTimeText.innerText = '—';
+    elements.progressBar.value = 0;
+    elements.progressText.innerText = '0%';
+    elements.speedText.innerText = '— MB/s';
+    elements.timeText.innerText = '—';
 
-    sendFile(file).then(() => sendNextFile());
+    sendFile(file, elements).then(() => sendNextFile(elements));
 }
 
 
 
-function startQueueAnswerer() {
-    const files = Array.from(fileInputAnswerer.files);
-    if (!files.length) { alert("No files selected"); return; }
-    if (!dataChannel || dataChannel.readyState !== "open") { alert("Connection not ready"); return; }
-    if (isTransferringAnswerer) { alert("Transfer already in progress"); return; }
-    if (window.peerIsTransferring) { alert("Peer is currently sending. Please wait."); return; }
-
-    fileQueueAnswerer = files;
-    queueTotalAnswerer = files.length;
-    queueIndexAnswerer = 0;
-
-    document.getElementById('senderProgressBlockAnswerer').style.display = 'flex';
-    window.updateQueueDropdownAnswerer(files, -1);
-
-    dataChannel.send(JSON.stringify({ type: "transfer-start" }));
-    sendNextFileAnswerer();
-}
-
-function sendNextFileAnswerer() {
-    if (fileQueueAnswerer.length === 0) {
-        isTransferringAnswerer = false;
-        queueStatusAnswerer.style.display = 'none';
-        queueStatusTextAnswerer.textContent = '';
-        fileInputAnswerer.value = '';
-        document.getElementById('selectedFileNameAnswerer').textContent = '';
-        sendFileBtnAnswerer.disabled = true;
-        window.updateQueueDropdownAnswerer([], -1);
-        dataChannel.send(JSON.stringify({ type: "transfer-end" }));
-        return;
-    }
-
-    isTransferringAnswerer = true;
-    sendFileBtnAnswerer.disabled = true;
-
-    const file = fileQueueAnswerer[0];
-    queueIndexAnswerer++;
-    window.updateQueueDropdownAnswerer(null, queueIndexAnswerer - 1);
-
-    if (queueTotalAnswerer > 1) {
-        queueStatusAnswerer.style.display = 'block';
-        queueStatusTextAnswerer.textContent = `File ${queueIndexAnswerer} of ${queueTotalAnswerer} — ${file.name}`;
-    }
-
-    fileQueueAnswerer.shift();
-
-    senderProgressBarAnswerer.value = 0;
-    senderProgressTextAnswerer.innerText = '0%';
-    senderSpeedTextAnswerer.innerText = '— MB/s';
-    senderTimeTextAnswerer.innerText = '—';
-
-    sendFileAnswerer(file).then(() => sendNextFileAnswerer());
-}
-
-
-
-async function sendFile(file) {
+async function sendFile(file, elements) {
     const chunkSize = 256 * 1024;
     const PIPELINE_SIZE = 4;
     let offset = 0;
@@ -184,54 +172,15 @@ async function sendFile(file) {
         pipeline.push(readChunk(offset + (PIPELINE_SIZE - 1) * chunkSize));
 
         let percent = ((offset / file.size) * 100).toFixed(2);
-        senderProgressBar.value = percent;
-        senderProgressText.innerText = `${percent}% (${(offset / 1024 / 1024).toFixed(2)} MB / ${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        elements.progressBar.value = percent;
+        elements.progressText.innerText = `${percent}% (${(offset / 1024 / 1024).toFixed(2)} MB / ${(file.size / 1024 / 1024).toFixed(2)} MB)`;
         let elapsed = (Date.now() - startTime) / 1000;
-        senderTimeText.innerText = elapsed.toFixed(2) + " sec";
-        senderSpeedText.innerText = ((offset / 1024 / 1024) / elapsed).toFixed(2) + " MB/s";
+        elements.timeText.innerText = elapsed.toFixed(2) + " sec";
+        elements.speedText.innerText = ((offset / 1024 / 1024) / elapsed).toFixed(2) + " MB/s";
     }
 
     dataChannel.send(JSON.stringify({ type: "end" }));
 }
-
-async function sendFileAnswerer(file) {
-    const chunkSize = 256 * 1024;
-    const PIPELINE_SIZE = 4;
-    let offset = 0;
-    let startTime = Date.now();
-
-    dataChannel.send(JSON.stringify({ type: "metadata", name: file.name, size: file.size }));
-
-    async function readChunk(off) {
-        if (off >= file.size) return null;
-        return file.slice(off, off + chunkSize).arrayBuffer();
-    }
-
-    let pipeline = [];
-    for (let i = 0; i < PIPELINE_SIZE; i++) {
-        pipeline.push(readChunk(offset + i * chunkSize));
-    }
-
-    while (offset < file.size) {
-        await waitForBufferCheck();
-        const chunk = await pipeline.shift();
-        if (!chunk) break;
-
-        dataChannel.send(chunk);
-        offset += chunk.byteLength;
-        pipeline.push(readChunk(offset + (PIPELINE_SIZE - 1) * chunkSize));
-
-        let percent = ((offset / file.size) * 100).toFixed(2);
-        senderProgressBarAnswerer.value = percent;
-        senderProgressTextAnswerer.innerText = `${percent}% (${(offset / 1024 / 1024).toFixed(2)} MB / ${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-        let elapsed = (Date.now() - startTime) / 1000;
-        senderTimeTextAnswerer.innerText = elapsed.toFixed(2) + " sec";
-        senderSpeedTextAnswerer.innerText = ((offset / 1024 / 1024) / elapsed).toFixed(2) + " MB/s";
-    }
-
-    dataChannel.send(JSON.stringify({ type: "end" }));
-}
-
 
 
 function waitForBufferCheck() {
@@ -249,22 +198,12 @@ function waitForBufferCheck() {
     });
 }
 
-function sendTextData() {
-    const text = textInput.value.trim();
+function sendTextData(elements) {
+    const text = elements.textInput.value.trim();
     if (!text) { alert("Nothing to send"); return; }
     if (!dataChannel || dataChannel.readyState !== "open") { alert("Connection not ready"); return; }
     dataChannel.send(JSON.stringify({ type: "text", content: text }));
-    textInput.value = "";
-    sendTextBtn.textContent = "✓ Sent!";
-    setTimeout(() => sendTextBtn.textContent = "Send Text →", 2000);
-}
-
-function sendTextDataAnswerer() {
-    const text = textInputAnswerer.value.trim();
-    if (!text) { alert("Nothing to send"); return; }
-    if (!dataChannel || dataChannel.readyState !== "open") { alert("Connection not ready"); return; }
-    dataChannel.send(JSON.stringify({ type: "text", content: text }));
-    textInputAnswerer.value = "";
-    sendTextBtnAnswerer.textContent = "✓ Sent!";
-    setTimeout(() => sendTextBtnAnswerer.textContent = "Send Text →", 2000);
+    elements.textInput.value = "";
+    elements.sendTextBtn.textContent = "✓ Sent!";
+    setTimeout(() => elements.sendTextBtn.textContent = "Send Text →", 2000);
 }
