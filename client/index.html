@@ -121,8 +121,9 @@
                 </div>
 
                 <!-- Receiver card -->
+                <!-- replace the entire receiver card -->
                 <div class="panel-card" id="receiverCard" style="display:none;">
-                    <div class="panel-card-label">incoming file</div>
+                    <div class="panel-card-label">incoming</div>
                     <div class="progress-block">
                         <div class="progress-track">
                             <div class="progress-fill receiver" id="receiverFill"></div>
@@ -146,6 +147,73 @@
                     <div style="margin-top:16px;">
                         <div id="downloadArea"></div>
                     </div>
+                
+                    <div id="alsoSendWrap" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid var(--border);">
+                        <button class="btn btn-full" id="toggleAnswererSendBtn">⬆ &nbsp;Also Send Files</button>
+                        <!-- <div id="peerTransferWarning" style="display:none;" class="peer-transfer-warning">
+                            ◎ &nbsp;Peer is currently sending — please wait
+                        </div> -->
+                    </div>
+                </div>
+                
+                <!-- answerer sender card — hidden until toggled -->
+                <div class="panel-card" id="answererSenderCard" style="display:none;">
+                    <div id="peerTransferWarning" style="display:none;" class="peer-transfer-warning">
+                        ◎ &nbsp;Peer is currently sending — please wait
+                    </div>
+                    <div class="panel-card-label">send file</div>
+                    <div class="drop-zone" id="dropZoneAnswerer">
+                        <input type="file" id="fileInputAnswerer" multiple />
+                        <span class="drop-icon">⬆</span>
+                        <div class="drop-primary">Click or drag files here</div>
+                        <div class="drop-secondary">Any file type · Multiple files supported</div>
+                        <div class="drop-file-name" id="selectedFileNameAnswerer"></div>
+                    </div>
+                
+                    <div id="queueDropdownAnswerer" style="display:none; margin-top:10px;">
+                        <div class="queue-dropdown-header" id="queueDropdownToggleAnswerer">
+                            <span id="queueDropdownLabelAnswerer">0 files queued</span>
+                            <span class="queue-dropdown-arrow" id="queueDropdownArrowAnswerer">▼</span>
+                        </div>
+                        <div class="queue-dropdown-body" id="queueDropdownBodyAnswerer"></div>
+                    </div>
+                
+                    <div style="margin-top:14px;">
+                        <button class="btn btn-primary" id="sendFileBtnAnswerer" disabled>Send File →</button>
+                    </div>
+                
+                    <button class="btn text-share-btn" id="toggleTextBtnAnswerer">⌨ &nbsp;Share Text</button>
+                    <div id="textPanelAnswerer" style="display:none;">
+                        <div class="input-wrap">
+                            <label class="input-label">Text / Snippet</label>
+                            <textarea id="textInputAnswerer" placeholder="Type or paste anything…"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="sendTextBtnAnswerer">Send Text →</button>
+                    </div>
+                
+                    <div class="progress-block" id="senderProgressBlockAnswerer" style="margin-top:20px; display:none;">
+                        <div class="progress-track">
+                            <div class="progress-fill sender" id="senderFillAnswerer"></div>
+                        </div>
+                        <div class="progress-meta">
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Progress</div>
+                                <div class="progress-stat-value" id="senderProgressTextAnswerer">0%</div>
+                            </div>
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Speed</div>
+                                <div class="progress-stat-value" id="senderSpeedTextAnswerer">— MB/s</div>
+                            </div>
+                            <div class="progress-stat">
+                                <div class="progress-stat-label">Elapsed</div>
+                                <div class="progress-stat-value" id="senderTimeTextAnswerer">—</div>
+                            </div>
+                        </div>
+                        <div class="queue-status" id="queueStatusAnswerer" style="display:none;">
+                            <span id="queueStatusTextAnswerer"></span>
+                        </div>
+                    </div>
+                    <progress id="senderProgressBarAnswerer" value="0" max="100"></progress>
                 </div>
 
             </div>

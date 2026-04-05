@@ -886,6 +886,17 @@ progress {
     color: var(--muted3);
     text-decoration: line-through;
 }
+.peer-transfer-warning {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--red);
+    border-radius: var(--radius);
+    font-size: 0.72rem;
+    color: var(--red);
+    letter-spacing: 0.04em;
+}
 /* -------------------- ANIMATIONS -------------------- */
 
 @keyframes fadeDown {

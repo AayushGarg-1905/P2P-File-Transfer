@@ -4,13 +4,16 @@
     setInterval(() => {
         const sBar = document.getElementById('senderProgressBar');
         const rBar = document.getElementById('receiverProgressBar');
+        const sBarA = document.getElementById('senderProgressBarAnswerer');
 
         if (sBar && sBar.value > 0) {
             document.getElementById('senderFill').style.width = sBar.value + '%';
         }
         if (rBar && rBar.value > 0) {
             document.getElementById('receiverFill').style.width = rBar.value + '%';
-            document.getElementById('receiverCard').style.display = 'block';
+        }
+        if (sBarA && sBarA.value > 0) {
+            document.getElementById('senderFillAnswerer').style.width = sBarA.value + '%';
         }
     }, 80);
 
@@ -211,6 +214,143 @@
                 <span class="queue-item-label">${stateLabel}</span>
             </div>
         `;
+        }).join('');
+    };
+
+    window.onDataChannelOpen = function () {
+        if (!_isCreator) {
+            document.getElementById('alsoSendWrap').style.display = 'block';
+        }
+    };
+
+    
+    const toggleAnswererSendBtn = document.getElementById('toggleAnswererSendBtn');
+    const answererSenderCard = document.getElementById('answererSenderCard');
+
+    toggleAnswererSendBtn.addEventListener('click', () => {
+        const visible = answererSenderCard.style.display !== 'none';
+        answererSenderCard.style.display = visible ? 'none' : 'block';
+        toggleAnswererSendBtn.textContent = visible ? '⬆  Also Send Files' : '✕  Hide Send Panel';
+    });
+
+    
+    window.updateSendBtnState = function () {
+        const warning = document.getElementById('peerTransferWarning');
+        const btn = document.getElementById('sendFileBtnAnswerer');
+        if (!warning || !btn) return;
+
+        if (window.peerIsTransferring) {
+            warning.style.display = 'block';
+            btn.disabled = true;
+        } else {
+            warning.style.display = 'none';
+            btn.disabled = Array.from(
+                document.getElementById('fileInputAnswerer')?.files || []
+            ).length === 0;
+        }
+    };
+
+    
+    const fileInputAnswerer = document.getElementById('fileInputAnswerer');
+    const selectedFileNameAnswerer = document.getElementById('selectedFileNameAnswerer');
+    const sendFileBtnAnswerer = document.getElementById('sendFileBtnAnswerer');
+
+    fileInputAnswerer.addEventListener('change', function () {
+        const files = Array.from(this.files);
+        if (!files.length) {
+            selectedFileNameAnswerer.textContent = '';
+            sendFileBtnAnswerer.disabled = true;
+            return;
+        }
+        selectedFileNameAnswerer.textContent = files.length === 1
+            ? files[0].name
+            : `${files.length} files selected`;
+        sendFileBtnAnswerer.disabled = window.peerIsTransferring || false;
+    });
+
+    sendFileBtnAnswerer.addEventListener('click', function () {
+        document.getElementById('senderProgressBlockAnswerer').style.display = 'flex';
+    }, true);
+
+    
+    const toggleTextBtnAnswerer = document.getElementById('toggleTextBtnAnswerer');
+    const textPanelAnswerer = document.getElementById('textPanelAnswerer');
+
+    toggleTextBtnAnswerer.addEventListener('click', () => {
+        const isVisible = textPanelAnswerer.style.display !== 'none';
+        textPanelAnswerer.style.display = isVisible ? 'none' : 'block';
+        toggleTextBtnAnswerer.textContent = isVisible ? '⌨  Share Text' : '✕  Close Text';
+    });
+
+    
+    const dzAnswerer = document.getElementById('dropZoneAnswerer');
+    let dragCounterAnswerer = 0;
+
+    dzAnswerer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dzAnswerer.classList.add('drag-over');
+    });
+
+    dzAnswerer.addEventListener('dragleave', () => {
+        dzAnswerer.classList.remove('drag-over');
+    });
+
+    dzAnswerer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dzAnswerer.classList.remove('drag-over');
+        dragCounterAnswerer = 0;
+        if (e.dataTransfer.files.length) {
+            fileInputAnswerer.files = e.dataTransfer.files;
+            fileInputAnswerer.dispatchEvent(new Event('change'));
+        }
+    });
+
+    
+    const queueDropdownAnswerer = document.getElementById('queueDropdownAnswerer');
+    const queueDropdownToggleAnswerer = document.getElementById('queueDropdownToggleAnswerer');
+    const queueDropdownBodyAnswerer = document.getElementById('queueDropdownBodyAnswerer');
+    const queueDropdownLabelAnswerer = document.getElementById('queueDropdownLabelAnswerer');
+    const queueDropdownArrowAnswerer = document.getElementById('queueDropdownArrowAnswerer');
+
+    let _queueFilesAnswerer = [];
+    let _dropdownOpenAnswerer = false;
+
+    queueDropdownToggleAnswerer.addEventListener('click', () => {
+        _dropdownOpenAnswerer = !_dropdownOpenAnswerer;
+        queueDropdownBodyAnswerer.style.display = _dropdownOpenAnswerer ? 'block' : 'none';
+        queueDropdownArrowAnswerer.textContent = _dropdownOpenAnswerer ? '▲' : '▼';
+    });
+
+    window.updateQueueDropdownAnswerer = function (files, activeIndex) {
+        if (files !== null) _queueFilesAnswerer = files;
+
+        if (!_queueFilesAnswerer.length) {
+            queueDropdownAnswerer.style.display = 'none';
+            queueDropdownBodyAnswerer.innerHTML = '';
+            _dropdownOpenAnswerer = false;
+            queueDropdownBodyAnswerer.style.display = 'none';
+            queueDropdownArrowAnswerer.textContent = '▼';
+            return;
+        }
+
+        queueDropdownLabelAnswerer.textContent = activeIndex === -1
+            ? `${_queueFilesAnswerer.length} file${_queueFilesAnswerer.length > 1 ? 's' : ''} queued`
+            : `Sending ${activeIndex + 1} of ${_queueFilesAnswerer.length}`;
+
+        queueDropdownAnswerer.style.display = 'block';
+
+        queueDropdownBodyAnswerer.innerHTML = _queueFilesAnswerer.map((f, i) => {
+            let stateClass = 'queue-item-pending';
+            let stateLabel = 'queued';
+            let stateIcon = '○';
+            if (i < activeIndex) { stateClass = 'queue-item-done'; stateLabel = 'sent'; stateIcon = '✓'; }
+            else if (i === activeIndex) { stateClass = 'queue-item-active'; stateLabel = 'sending…'; stateIcon = '▶'; }
+            return `
+            <div class="queue-item ${stateClass}">
+                <span class="queue-item-icon">${stateIcon}</span>
+                <span class="queue-item-name">${f.name}</span>
+                <span class="queue-item-label">${stateLabel}</span>
+            </div>`;
         }).join('');
     };
 
