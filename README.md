@@ -14,3 +14,6 @@ P2P File Transfer is a minimal MVP (Minimum Viable Product) that demonstrates th
 - **Room-Based Matching**: Users join rooms to find and connect with transfer partners
 - **Automatic Cleanup**: Rooms are automatically deleted when all peers disconnect
 - **CORS Enabled**: Ready for cross-origin requests
+- **Bi-Directional Transfers**: Both peers can send files simultaneously, each with independent transfer controls
+- **Multiple File Transfer**: Queue and send multiple files in sequence with progress tracking for each
+- **Text Sharing**: Send instant text messages alongside file transfers
