@@ -42,10 +42,10 @@ self.addEventListener('fetch', event => {
     if (
         url.pathname.startsWith('/socket.io') ||
         url.pathname.startsWith('/turn-server-config') ||
-        url.hostname === 'cdn.jsdelivr.net' ||      // ← add this
-        url.hostname === 'cdnjs.cloudflare.com' ||  // ← and this
-        url.hostname === 'fonts.googleapis.com' ||  // ← and this
-        url.hostname === 'fonts.gstatic.com'        // ← and this
+        url.hostname === 'cdn.jsdelivr.net' ||     
+        url.hostname === 'cdnjs.cloudflare.com' ||  
+        url.hostname === 'fonts.googleapis.com' ||  
+        url.hostname === 'fonts.gstatic.com'        
     ) {
         return;
     }
